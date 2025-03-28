@@ -37,7 +37,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             log.info("请求：{} 无需认证", path);
             return chain.filter(exchange);
         }
-        List<String> headers = request.getHeaders().get("authorization");
+        List<String> headers = request.getHeaders().get("token");
 
         String token = null;
         if(headers != null && !headers.isEmpty()) {
