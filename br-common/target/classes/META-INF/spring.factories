@@ -1,0 +1,6 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.yxc.common.advice.CommonExceptionAdvice,\
+  com.yxc.common.config.MybatisConfig,\
+  com.yxc.common.config.MvcConfig,\
+  com.yxc.common.config.MessageConvertConfig,\
+  com.yxc.common.config.RedissonConfig

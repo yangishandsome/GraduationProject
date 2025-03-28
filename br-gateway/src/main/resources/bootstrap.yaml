@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: br-gateway
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: 192.168.147.3:8848
+      config:
+        file-extension: yaml
+        shared-configs:
+          - data-id: shared-jwt.yaml
+          - data-id: shared-auth.yaml
