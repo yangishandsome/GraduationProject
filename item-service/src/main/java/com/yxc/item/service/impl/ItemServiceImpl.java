@@ -7,6 +7,7 @@ import com.yxc.common.domain.PageQuery;
 import com.yxc.common.domain.PageVO;
 import com.yxc.common.domain.Result;
 import com.yxc.item.domain.dto.SaveItemDTO;
+import com.yxc.item.domain.dto.UpdateItemDTO;
 import com.yxc.item.domain.po.Item;
 import com.yxc.item.mapper.ItemMapper;
 import com.yxc.item.service.ItemService;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements ItemService {
+
+    private UpdateItemDTO updateItemDTO;
 
     @Override
     public Result<Long> saveItem(SaveItemDTO saveItemDTO) {
@@ -33,11 +36,39 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
 
     @Override
     public Result<PageVO<Item>> pageQuery(PageQuery pageQuery) {
-        Page<Item> page = lambdaQuery().page(new Page<>(pageQuery.getPageNo(), pageQuery.getPageSize()));
+        String likeName = pageQuery.getLikeName();
+        Page<Item> page = lambdaQuery()
+                .like(StrUtil.isNotEmpty(likeName), Item::getName, likeName)
+                .page(new Page<>(pageQuery.getPageNo(), pageQuery.getPageSize()));
         PageVO<Item> vo = new PageVO<>();
         vo.setPages(page.getPages());
         vo.setTotal(page.getTotal());
         vo.setList(page.getRecords());
         return Result.ok(vo);
+    }
+
+    @Override
+    public Result<Long> updateItem(UpdateItemDTO updateItemDTO) {
+        this.updateItemDTO = updateItemDTO;
+        Long itemId = updateItemDTO.getItemId();
+        String name = updateItemDTO.getName();
+        Item item = getById(itemId);
+        if(item == null) {
+            return Result.error("要修改的商品已被删除");
+        }
+        item.setName(name);
+        item.setPrice(updateItemDTO.getPrice());
+        item.setCapacity(updateItemDTO.getCapacity());
+        item.setImageUrl(updateItemDTO.getImageUrl());
+        updateById(item);
+        return Result.ok(itemId);
+    }
+
+    @Override
+    public Result<Long> changeItemStatus(Long id) {
+        Item item = getById(id);
+        item.setStatus((short) ((item.getStatus() + 1) % 2));
+        updateById(item);
+        return Result.ok(id);
     }
 }

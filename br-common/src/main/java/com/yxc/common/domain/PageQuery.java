@@ -20,6 +20,7 @@ public class PageQuery {
     private Integer pageSize = DEFAULT_PAGE_SIZE;
     private Boolean isAsc = true;
     private String sortBy;
+    private String likeName;
 
     public int from(){
         return (pageNo - 1) * pageSize;

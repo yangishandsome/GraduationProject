@@ -1,13 +1,15 @@
 package com.yxc.user.controller;
 
 import com.yxc.common.domain.Result;
+import com.yxc.common.utils.UserContext;
 import com.yxc.user.Service.UserService;
-import com.yxc.user.domain.dto.LoginDTO;
 import com.yxc.user.domain.dto.RegisterDTO;
 import com.yxc.user.domain.dto.RegisterVerifyDTO;
+import com.yxc.user.domain.dto.UpdateUserInfoDTO;
 import com.yxc.user.domain.vo.LoginVO;
 import com.yxc.user.domain.vo.RegisterVO;
 import com.yxc.user.domain.vo.RegisterVerifyVO;
+import com.yxc.user.domain.vo.UserInfoVO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -43,5 +45,16 @@ public class UserController {
     @PostMapping("/registerVerify")
     private Result<RegisterVerifyVO> registerVerify(@RequestBody RegisterVerifyDTO registerVerifyDTO) {
         return userService.registerVerify(registerVerifyDTO);
+    }
+
+    @PostMapping("/updateUserInfo")
+    private Result<Long> updateUserInfo(@RequestBody UpdateUserInfoDTO updateUserInfoDTO) {
+        return userService.updateUserInfo(updateUserInfoDTO);
+    }
+
+    @GetMapping("/getUserInfo")
+    private Result<UserInfoVO> getUserInfo() {
+        Long userId = UserContext.getUser();
+        return userService.getUserInfo(userId);
     }
 }

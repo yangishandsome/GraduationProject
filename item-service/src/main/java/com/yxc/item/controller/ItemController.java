@@ -4,6 +4,7 @@ import com.yxc.common.domain.PageQuery;
 import com.yxc.common.domain.PageVO;
 import com.yxc.common.domain.Result;
 import com.yxc.item.domain.dto.SaveItemDTO;
+import com.yxc.item.domain.dto.UpdateItemDTO;
 import com.yxc.item.domain.po.Item;
 import com.yxc.item.service.ItemService;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +22,24 @@ public class ItemController {
         return itemService.saveItem(saveItemDTO);
     }
 
+    @PostMapping("/updateItem")
+    public Result<Long> updateItem(@RequestBody UpdateItemDTO updateItemDTO) {
+        return itemService.updateItem(updateItemDTO);
+    }
+
     @GetMapping("/pageQuery")
     public Result<PageVO<Item>> pageQuery(PageQuery pageQuery) {
         return itemService.pageQuery(pageQuery);
     }
 
+    @PostMapping("/changeItemStatus/{id}")
+    public Result<Long> changeItemStatus(@PathVariable(value = "id") Long id) {
+        return itemService.changeItemStatus(id);
+    }
+
+    @PostMapping("deleteItem/{id}")
+    public Result<Long> deleteItem(@PathVariable(value = "id") Long id) {
+        itemService.removeById(id);
+        return Result.ok(id);
+    }
 }

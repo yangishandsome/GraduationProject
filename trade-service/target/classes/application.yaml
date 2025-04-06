@@ -1,7 +1,0 @@
-server:
-  port: 8082
-br:
-  db:
-    database: br-trade
-
-# keytool -genkeypair -alias hmall -keyalg RSA -keypass hmall123 -keystore hmall.jks -storepass hmall123

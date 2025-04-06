@@ -6,16 +6,20 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxc.common.domain.Result;
 import com.yxc.common.utils.PasswordEncoder;
+import com.yxc.common.utils.UserContext;
+import com.yxc.user.Service.AddressService;
 import com.yxc.user.Service.UserService;
 import com.yxc.user.config.JwtProperties;
-import com.yxc.user.domain.dto.LoginDTO;
 import com.yxc.user.domain.dto.RegisterDTO;
 import com.yxc.user.domain.dto.RegisterVerifyDTO;
+import com.yxc.user.domain.dto.UpdateUserInfoDTO;
+import com.yxc.user.domain.po.Address;
 import com.yxc.user.domain.po.Register;
 import com.yxc.user.domain.po.User;
 import com.yxc.user.domain.vo.LoginVO;
 import com.yxc.user.domain.vo.RegisterVO;
 import com.yxc.user.domain.vo.RegisterVerifyVO;
+import com.yxc.user.domain.vo.UserInfoVO;
 import com.yxc.user.mapper.UserMapper;
 import com.yxc.user.utils.JwtTool;
 import com.yxc.user.utils.RedisIdWork;
@@ -35,6 +39,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private AddressService addressService;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
     @Resource
@@ -145,6 +151,64 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         vo.setToken(token);
         log.info("用户：{}注册成功，token：{}", vo.getUsername(), token);
         return Result.ok(vo);
+    }
+
+    @Override
+    public Result<UserInfoVO> getUserInfo(Long userId) {
+        User user = getById(userId);
+        if(user == null) {
+            return Result.error("用户不存在");
+        }
+        UserInfoVO vo = new UserInfoVO();
+        Address address = addressService.lambdaQuery()
+                .eq(Address::getUserId, userId).eq(Address::getIsDefault, 1)
+                .one();
+        if(address != null) {
+            vo.setAddress(address.getDetail());
+        }
+        vo.setUsername(user.getUsername());
+        vo.setEmail(user.getEmail());
+        vo.setPhone(user.getPhone());
+        vo.setBalance(user.getBalance());
+        return Result.ok(vo);
+    }
+
+    @Override
+    public Result<Long> updateUserInfo(UpdateUserInfoDTO updateUserInfoDTO) {
+        String username = updateUserInfoDTO.getUsername();
+        String email = updateUserInfoDTO.getEmail();
+        String phone = updateUserInfoDTO.getPhone();
+        Long userId = UserContext.getUser();
+        User user = lambdaQuery()
+                .eq(StrUtil.isNotEmpty(username), User::getUsername, username)
+                .or().eq(StrUtil.isNotEmpty(email), User::getEmail, email)
+                .or().eq(StrUtil.isNotEmpty(phone), User::getPhone, phone)
+                .one();
+        if(user != null && !user.getUserId().equals(userId)) {
+            String msg = "";
+            if(user.getUsername().equals(username)) {
+                msg = "用户名已存在";
+            } else if(user.getPhone().equals(phone)) {
+                msg = "手机号已被使用";
+            } else {
+                msg = "邮箱已被使用";
+            }
+            return Result.error(msg);
+        }
+        if((user = getById(userId)) == null) {
+            return Result.error("用户不存在");
+        }
+        if(StrUtil.isNotEmpty(username)) {
+            user.setUsername(username);
+        }
+        if(StrUtil.isNotEmpty(phone)) {
+            user.setPhone(phone);
+        }
+        if(StrUtil.isNotEmpty(email)) {
+            user.setEmail(email);
+        }
+        updateById(user);
+        return Result.ok(1L);
     }
 
 
