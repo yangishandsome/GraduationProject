@@ -61,8 +61,14 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 
     @Override
     public Result<Long> updateById(AddOrUpdateAddressDTO addOrUpdateAddressDTO) {
-        List<String> locationInfo = addOrUpdateAddressDTO.getLocationInfo();
+        Long userId = UserContext.getUser();
         Address address = getAddress(addOrUpdateAddressDTO);
+        if (address.getIsDefault() == 1) {
+            lambdaUpdate()
+                    .set( Address::getIsDefault, 0)
+                    .eq(Address::getUserId, userId)
+                    .update();
+        }
         updateById(address);
         return Result.ok(1L);
     }

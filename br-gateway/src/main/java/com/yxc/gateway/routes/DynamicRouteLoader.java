@@ -6,6 +6,7 @@ import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionWriter;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import java.util.concurrent.Executor;
 
 @Slf4j
 @Component
+@RefreshScope
 @RequiredArgsConstructor
 public class DynamicRouteLoader {
 

@@ -9,5 +9,6 @@ spring:
       config:
         file-extension: yaml
         shared-configs:
+          - data-id: shared-log.yaml
           - data-id: shared-jwt.yaml
           - data-id: shared-auth.yaml

@@ -1,9 +1,13 @@
 package com.yxc.user;
 
+import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yxc.common.utils.PasswordEncoder;
 import com.yxc.user.Service.AdminService;
+import com.yxc.user.Service.BalanceService;
 import com.yxc.user.Service.UserService;
 import com.yxc.user.domain.po.Admin;
+import com.yxc.user.domain.po.BalanceRecords;
 import com.yxc.user.domain.po.User;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
@@ -12,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 @SpringBootTest
@@ -25,13 +30,12 @@ public class UserServiceTest {
     private UserService userService;
     @Resource
     private AdminService adminService;
+    @Resource
+    private BalanceService balanceService;
 
     @Test
     public void test1() {
-        Admin admin = new Admin();
-        admin.setUsername("admin");
-        admin.setPasswordHash(PasswordEncoder.encode("123456"));
-        admin.setStatus((short) 0);
-        adminService.save(admin);
+        balanceService.remove(new LambdaQueryWrapper<BalanceRecords>()
+                .le(BalanceRecords::getAmount, new BigDecimal("0.0")));
     }
 }

@@ -11,14 +11,24 @@ import java.time.LocalDateTime;
 @Data
 @TableName("item")
 public class Item {
+
     @TableId(value = "item_id", type = IdType.AUTO)
     private Long itemId;
+
     private String name;
+
     private Integer capacity;
+
     private String imageUrl;
+
     private BigDecimal price;
+
     private Short currentHealth;
+
     private Short currentCharge;
+
     private Short status;
+
     private LocalDateTime lastMaintained;
+
 }

@@ -6,12 +6,16 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxc.common.domain.PageQuery;
 import com.yxc.common.domain.PageVO;
 import com.yxc.common.domain.Result;
+import com.yxc.common.exception.BizIllegalException;
+import com.yxc.item.domain.dto.OrderDetail;
 import com.yxc.item.domain.dto.SaveItemDTO;
 import com.yxc.item.domain.dto.UpdateItemDTO;
 import com.yxc.item.domain.po.Item;
 import com.yxc.item.mapper.ItemMapper;
 import com.yxc.item.service.ItemService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements ItemService {
@@ -70,5 +74,19 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
         item.setStatus((short) ((item.getStatus() + 1) % 2));
         updateById(item);
         return Result.ok(id);
+    }
+
+    @Override
+    public void deductStock(List<OrderDetail> items) {
+        String sqlStatement = "com.yxc.item.mapper.ItemMapper.updateStock";
+        boolean r = false;
+        try {
+            r = executeBatch(items, (sqlSession, entity) -> sqlSession.update(sqlStatement, entity));
+        } catch (Exception e) {
+            throw new BizIllegalException("更新库存异常，可能是库存不足!", e);
+        }
+        if (!r) {
+            throw new BizIllegalException("库存不足！");
+        }
     }
 }
