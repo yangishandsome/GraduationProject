@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Data
 @TableName(value = "orders")
-public class Orders {
+public class Order {
     @TableId(value = "order_id", type = IdType.AUTO)
     private Long orderId;
 

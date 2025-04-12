@@ -13,14 +13,20 @@ import com.yxc.item.domain.dto.UpdateItemDTO;
 import com.yxc.item.domain.po.Item;
 import com.yxc.item.mapper.ItemMapper;
 import com.yxc.item.service.ItemService;
+import io.seata.core.context.RootContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 
+@Slf4j
 @Service
 public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements ItemService {
 
-    private UpdateItemDTO updateItemDTO;
+    @Resource
+    private ItemMapper itemMapper;
 
     @Override
     public Result<Long> saveItem(SaveItemDTO saveItemDTO) {
@@ -53,7 +59,6 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
 
     @Override
     public Result<Long> updateItem(UpdateItemDTO updateItemDTO) {
-        this.updateItemDTO = updateItemDTO;
         Long itemId = updateItemDTO.getItemId();
         String name = updateItemDTO.getName();
         Item item = getById(itemId);
@@ -78,15 +83,17 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
 
     @Override
     public void deductStock(List<OrderDetail> items) {
-        String sqlStatement = "com.yxc.item.mapper.ItemMapper.updateStock";
-        boolean r = false;
-        try {
-            r = executeBatch(items, (sqlSession, entity) -> sqlSession.update(sqlStatement, entity));
-        } catch (Exception e) {
-            throw new BizIllegalException("更新库存异常，可能是库存不足!", e);
-        }
-        if (!r) {
-            throw new BizIllegalException("库存不足！");
-        }
+        log.info("Seata全局事务id=================>{}", RootContext.getXID());
+//        String sqlStatement = "com.yxc.item.mapper.ItemMapper.updateStock";
+//        boolean r = false;
+//        try {
+//            r = executeBatch(items, (sqlSession, entity) -> sqlSession.update(sqlStatement, entity));
+//        } catch (Exception e) {
+//            throw new BizIllegalException("更新库存异常，可能是库存不足!", e);
+//        }
+//        if (!r) {
+//            throw new BizIllegalException("库存不足！");
+//        }
+        itemMapper.updateStock(items.get(0));
     }
 }

@@ -58,7 +58,7 @@ public class ItemController {
         return itemService.listByIds(ids);
     }
 
-    @PutMapping("/item/deductStock")
+    @PutMapping("/deductStock")
     void deductStock(@RequestBody List<OrderDetail> items) {
         itemService.deductStock(items);
     }

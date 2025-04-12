@@ -135,5 +135,11 @@
 			<artifactId>aspectjweaver</artifactId>
 			<version>1.9.4</version>
 		</dependency>
+		<!-- Druid 数据源依赖 -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>1.2.11</version>
+		</dependency>
 	</dependencies>
 </project>

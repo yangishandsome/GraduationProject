@@ -3,3 +3,5 @@ server:
 br:
   db:
     database: br-item
+    host: 192.168.147.3
+    pw: 123456
