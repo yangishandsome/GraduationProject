@@ -14,4 +14,6 @@ public interface AddressService extends IService<Address> {
     Result<List<GetAddressVO>> getAddress(Long userId);
 
     Result<Long> updateById(AddOrUpdateAddressDTO addOrUpdateAddressDTO);
+
+    Result<Address> getDefaultAddress(Long userId);
 }

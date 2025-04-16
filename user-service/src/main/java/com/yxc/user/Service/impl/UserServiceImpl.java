@@ -22,7 +22,7 @@ import com.yxc.user.domain.vo.RegisterVerifyVO;
 import com.yxc.user.domain.vo.UserInfoVO;
 import com.yxc.user.mapper.UserMapper;
 import com.yxc.user.utils.JwtTool;
-import com.yxc.user.utils.RedisIdWork;
+import com.yxc.common.utils.RedisIdWork;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -164,7 +164,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .eq(Address::getUserId, userId).eq(Address::getIsDefault, 1)
                 .one();
         if(address != null) {
-            vo.setAddress(address.getDetail());
+            address.setProvince(StrUtil.isEmpty(address.getProvince()) ? "" : address.getProvince());
+            String addressDetail = address.getProvince() + address.getCity() + address.getDistrict() + address.getDetail();
+            vo.setAddress(addressDetail);
         }
         vo.setUsername(user.getUsername());
         vo.setEmail(user.getEmail());
@@ -209,6 +211,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         updateById(user);
         return Result.ok(1L);
+    }
+
+    @Override
+    public List<User> getUserByIds(List<Long> ids) {
+        return userMapper.selectBatchIds(ids);
     }
 
 }

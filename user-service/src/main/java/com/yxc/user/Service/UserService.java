@@ -11,6 +11,8 @@ import com.yxc.user.domain.vo.RegisterVO;
 import com.yxc.user.domain.vo.RegisterVerifyVO;
 import com.yxc.user.domain.vo.UserInfoVO;
 
+import java.util.List;
+
 public interface UserService extends IService<User> {
     Result<LoginVO> login(String username, String password);
 
@@ -25,4 +27,6 @@ public interface UserService extends IService<User> {
     Result<UserInfoVO> getUserInfo(Long userId);
 
     Result<Long> updateUserInfo(UpdateUserInfoDTO updateUserInfoDTO);
+
+    List<User> getUserByIds(List<Long> ids);
 }

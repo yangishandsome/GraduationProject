@@ -38,6 +38,11 @@ public class ItemController {
         return itemService.pageQuery(pageQuery);
     }
 
+    @GetMapping("/shelvesPageQuery")
+    public Result<PageVO<Item>> shelvesPageQuery(PageQuery pageQuery) {
+        return itemService.shelvesPageQuery(pageQuery);
+    }
+
 
     @PostMapping("/changeItemStatus/{id}")
     public Result<Long> changeItemStatus(@PathVariable(value = "id") Long id) {

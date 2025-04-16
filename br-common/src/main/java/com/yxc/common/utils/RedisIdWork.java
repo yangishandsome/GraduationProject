@@ -1,4 +1,4 @@
-package com.yxc.user.utils;
+package com.yxc.common.utils;
 
 import cn.hutool.core.date.DateTime;
 import org.springframework.data.redis.core.StringRedisTemplate;

@@ -16,9 +16,12 @@ public interface ItemService extends IService<Item> {
 
     Result<PageVO<Item>> pageQuery(PageQuery pageQuery);
 
+    Result<PageVO<Item>> shelvesPageQuery(PageQuery pageQuery);
+
     Result<Long> updateItem(UpdateItemDTO updateItemDTO);
 
     Result<Long> changeItemStatus(Long id);
 
     void deductStock(List<OrderDetail> items);
+
 }

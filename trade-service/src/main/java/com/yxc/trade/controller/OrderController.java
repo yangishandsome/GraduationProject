@@ -1,21 +1,19 @@
 package com.yxc.trade.controller;
 
-import com.yxc.api.client.ItemClient;
-import com.yxc.api.po.Item;
-import com.yxc.api.po.OrderDetail;
+import com.yxc.common.domain.PageQuery;
+import com.yxc.common.domain.PageVO;
 import com.yxc.common.domain.Result;
+import com.yxc.trade.domain.dto.CreateOrderDTO;
+import com.yxc.trade.domain.dto.PayOrderDTO;
 import com.yxc.trade.domain.po.Order;
+import com.yxc.trade.domain.po.OrderDetail;
+import com.yxc.trade.domain.vo.CreateOrderVO;
+import com.yxc.trade.domain.vo.OrderDetailVO;
 import com.yxc.trade.service.OrderService;
-import io.seata.core.context.RootContext;
-import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -25,12 +23,23 @@ public class OrderController {
     @Resource
     private OrderService orderService;
 
-    @Resource
-    private ItemClient itemClient;
+    @PostMapping("/createOrder")
+    private Result<CreateOrderVO> createOrder(@RequestBody CreateOrderDTO createOrderDTO) {
+        return orderService.createOrder(createOrderDTO);
+    }
 
-    @GetMapping("/test")
-    private Result<Long> test() {
-        orderService.test();
-        return Result.ok(1L);
+    @PutMapping("/pay")
+    private Result<?> pay(@RequestBody PayOrderDTO payOrderDTO) {
+        return orderService.payOrder(payOrderDTO);
+    }
+
+    @GetMapping("pageQuery")
+    private Result<PageVO<Order>> pageQuery(PageQuery pageQuery) {
+        return orderService.pageQuery(pageQuery);
+    }
+
+    @GetMapping("getOrderDetail/{orderId}")
+    private Result<OrderDetailVO> getOrderDetail(@PathVariable(value = "orderId") Long orderId) {
+        return orderService.getOrderDetail(orderId);
     }
 }

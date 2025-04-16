@@ -4,6 +4,7 @@ import com.yxc.common.domain.Result;
 import com.yxc.common.utils.UserContext;
 import com.yxc.user.Service.AddressService;
 import com.yxc.user.domain.dto.AddOrUpdateAddressDTO;
+import com.yxc.user.domain.po.Address;
 import com.yxc.user.domain.vo.GetAddressVO;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,15 @@ public class AddressController {
         return addressService.getAddress(userId);
     }
 
+    @GetMapping("getDefaultAddress")
+    public Result<Address> getDefaultAddress() {
+        Long userId = UserContext.getUser();
+        if(userId == null) {
+            return Result.error("用户不存在");
+        }
+        return addressService.getDefaultAddress(userId);
+    }
+
     @PutMapping("/addAddress")
     private Result<Long> addAddress(@RequestBody AddOrUpdateAddressDTO addOrUpdateAddressDTO) {
         return addressService.addAddress(addOrUpdateAddressDTO);
@@ -37,6 +47,10 @@ public class AddressController {
 
     @DeleteMapping("/deleteById/{id}")
     private Result<Boolean> deleteById(@PathVariable(value = "id") Long id) {
+        Address address = addressService.getById(id);
+        if(address.getIsDefault() == 1) {
+            return Result.error("默认地址无法删除");
+        }
         return Result.ok(addressService.removeById(id));
     }
 

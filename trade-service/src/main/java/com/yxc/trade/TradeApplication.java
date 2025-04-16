@@ -1,7 +1,6 @@
 package com.yxc.trade;
 
 import com.yxc.api.config.DefaultFeignConfig;
-import io.seata.spring.annotation.datasource.EnableAutoDataSourceProxy;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

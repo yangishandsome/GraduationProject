@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class Sm4PasswordEncoder implements PasswordEncoder {
 
-    private String KEY = "KeyMustBe16Size.";
+    private final String KEY = "NameXinChengYang";
 
     @Override
     public String encode(CharSequence rawPassword) {

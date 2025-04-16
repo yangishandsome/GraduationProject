@@ -48,6 +48,23 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
     public Result<PageVO<Item>> pageQuery(PageQuery pageQuery) {
         String likeName = pageQuery.getLikeName();
         Page<Item> page = lambdaQuery()
+                .orderBy(true, true, Item::getStatus)
+                .orderBy(true, false, Item::getItemId)
+                .like(StrUtil.isNotEmpty(likeName), Item::getName, likeName)
+                .page(new Page<>(pageQuery.getPageNo(), pageQuery.getPageSize()));
+        PageVO<Item> vo = new PageVO<>();
+        vo.setPages(page.getPages());
+        vo.setTotal(page.getTotal());
+        vo.setList(page.getRecords());
+        return Result.ok(vo);
+    }
+
+    @Override
+    public Result<PageVO<Item>> shelvesPageQuery(PageQuery pageQuery) {
+        String likeName = pageQuery.getLikeName();
+        Page<Item> page = lambdaQuery()
+                .eq(Item::getStatus, 0)
+                .orderBy(true, false, Item::getCapacity)
                 .like(StrUtil.isNotEmpty(likeName), Item::getName, likeName)
                 .page(new Page<>(pageQuery.getPageNo(), pageQuery.getPageSize()));
         PageVO<Item> vo = new PageVO<>();
@@ -83,17 +100,16 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
 
     @Override
     public void deductStock(List<OrderDetail> items) {
-        log.info("Seata全局事务id=================>{}", RootContext.getXID());
-//        String sqlStatement = "com.yxc.item.mapper.ItemMapper.updateStock";
-//        boolean r = false;
-//        try {
-//            r = executeBatch(items, (sqlSession, entity) -> sqlSession.update(sqlStatement, entity));
-//        } catch (Exception e) {
-//            throw new BizIllegalException("更新库存异常，可能是库存不足!", e);
-//        }
-//        if (!r) {
-//            throw new BizIllegalException("库存不足！");
-//        }
+        String sqlStatement = "com.yxc.item.mapper.ItemMapper.updateStock";
+        boolean r = false;
+        try {
+            r = executeBatch(items, (sqlSession, entity) -> sqlSession.update(sqlStatement, entity));
+        } catch (Exception e) {
+            throw new BizIllegalException("更新库存异常，可能是库存不足!", e);
+        }
+        if (!r) {
+            throw new BizIllegalException("库存不足！");
+        }
         itemMapper.updateStock(items.get(0));
     }
 }

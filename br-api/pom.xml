@@ -38,6 +38,7 @@
 			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-okhttp</artifactId>
 		</dependency>
+
 	</dependencies>
 
 </project>

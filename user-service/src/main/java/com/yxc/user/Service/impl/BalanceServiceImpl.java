@@ -10,11 +10,13 @@ import com.yxc.common.utils.UserContext;
 import com.yxc.user.Service.BalanceService;
 import com.yxc.user.Service.UserService;
 import com.yxc.user.domain.dto.AddBalanceDTO;
+import com.yxc.user.domain.dto.DeductBalanceDTO;
 import com.yxc.user.domain.po.BalanceRecords;
 import com.yxc.user.domain.po.User;
 import com.yxc.user.domain.vo.AddBalanceVO;
 import com.yxc.user.mapper.BalanceMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -25,6 +27,7 @@ public class BalanceServiceImpl extends ServiceImpl<BalanceMapper, BalanceRecord
     private UserService userService;
 
     @Override
+    @Transactional
     public Result<AddBalanceVO> addBalance(AddBalanceDTO addBalanceDTO) {
         BigDecimal amount = addBalanceDTO.getAmount();
         String payMethod = addBalanceDTO.getPayMethod();
@@ -65,5 +68,22 @@ public class BalanceServiceImpl extends ServiceImpl<BalanceMapper, BalanceRecord
         vo.setTotal(page.getTotal());
         vo.setPages(page.getPages());
         return Result.ok(vo);
+    }
+
+    @Override
+    public Result<?> deductBalance(DeductBalanceDTO deductBalanceDTO) {
+        User user = userService.getById(deductBalanceDTO.getUserId());
+        if(user.getBalance().compareTo(deductBalanceDTO.getAmount()) < 0) {
+            return Result.error("余额不足");
+        }
+        user.setBalance(user.getBalance().subtract(deductBalanceDTO.getAmount()));
+        userService.updateById(user);
+        BalanceRecords records = new BalanceRecords();
+        records.setPayMethod("payment");
+        records.setPayStatus("success");
+        records.setUserId(user.getUserId());
+        records.setAmount(deductBalanceDTO.getAmount().negate());
+        save(records);
+        return Result.ok(1);
     }
 }

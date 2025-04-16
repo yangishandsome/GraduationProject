@@ -2,7 +2,7 @@ package com.yxc.api.client.fallback;
 
 import com.yxc.api.client.ItemClient;
 import com.yxc.api.po.Item;
-import com.yxc.api.po.OrderDetail;
+import com.yxc.api.po.DeductStock;
 import com.yxc.common.exception.BizIllegalException;
 import com.yxc.common.utils.CollUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class ItemClientFallbackFactory implements FallbackFactory<ItemClient> {
             }
 
             @Override
-            public void deductStock(List<OrderDetail> items) {
+            public void deductStock(List<DeductStock> items) {
                 log.error("扣减商品库存失败！", cause);
                 throw new BizIllegalException(cause);
             }

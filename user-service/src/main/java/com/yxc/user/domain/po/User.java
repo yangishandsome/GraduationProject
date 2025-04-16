@@ -27,10 +27,6 @@ public class User {
 
     private String username;
 
-    private String realName;
-
-    private String idCard;
-
     private BigDecimal balance;
 
     private Short status;

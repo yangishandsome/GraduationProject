@@ -61,8 +61,12 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 
     @Override
     public Result<Long> updateById(AddOrUpdateAddressDTO addOrUpdateAddressDTO) {
+        Address address = getById(addOrUpdateAddressDTO.getId());
+        if(address.getIsDefault() == 1) {
+            return Result.error("必须有一个默认地址");
+        }
         Long userId = UserContext.getUser();
-        Address address = getAddress(addOrUpdateAddressDTO);
+        address = getAddress(addOrUpdateAddressDTO);
         if (address.getIsDefault() == 1) {
             lambdaUpdate()
                     .set( Address::getIsDefault, 0)
@@ -73,10 +77,25 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
         return Result.ok(1L);
     }
 
+    @Override
+    public Result<Address> getDefaultAddress(Long userId) {
+        List<Address> list = lambdaQuery()
+                .eq(Address::getUserId, userId)
+                .eq(Address::getIsDefault, 1)
+                .list();
+        if (list.isEmpty()) {
+            return Result.error("该用户无默认收货地址");
+        }
+        Address address = list.get(0);
+        address.setProvince(StrUtil.isEmpty(address.getProvince()) ? "" : address.getProvince());
+        return Result.ok(address);
+    }
+
     private static Address getAddress(AddOrUpdateAddressDTO addOrUpdateAddressDTO) {
         List<String> locationInfo = addOrUpdateAddressDTO.getLocationInfo();
         Long userId = UserContext.getUser();
         int size = locationInfo.size();
+
         Address address = new Address();
         address.setId(addOrUpdateAddressDTO.getId());
         address.setDistrict(locationInfo.get(size - 1));
@@ -87,6 +106,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
         address.setUserId(userId);
         address.setPhone(addOrUpdateAddressDTO.getPhone());
         address.setIsDefault(addOrUpdateAddressDTO.getIsDefault() ? 1 : 0);
+
         return address;
     }
 }

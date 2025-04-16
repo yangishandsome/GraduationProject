@@ -6,6 +6,6 @@ import com.yxc.item.domain.po.Item;
 import org.apache.ibatis.annotations.Update;
 
 public interface ItemMapper extends BaseMapper<Item> {
-    @Update("update item set capacity = capacity - #{num} where item_id = #{itemId}")
+    @Update("update item set capacity = capacity - #{num} where item_id = #{itemId} and capacity >= #{num}")
     void updateStock(OrderDetail orderDetail);
 }

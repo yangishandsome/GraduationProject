@@ -6,6 +6,7 @@ import com.yxc.user.Service.UserService;
 import com.yxc.user.domain.dto.RegisterDTO;
 import com.yxc.user.domain.dto.RegisterVerifyDTO;
 import com.yxc.user.domain.dto.UpdateUserInfoDTO;
+import com.yxc.user.domain.po.User;
 import com.yxc.user.domain.vo.LoginVO;
 import com.yxc.user.domain.vo.RegisterVO;
 import com.yxc.user.domain.vo.RegisterVerifyVO;
@@ -13,6 +14,7 @@ import com.yxc.user.domain.vo.UserInfoVO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -57,4 +59,13 @@ public class UserController {
         Long userId = UserContext.getUser();
         return userService.getUserInfo(userId);
     }
+
+    /**
+     * OpenFeign接口
+     */
+    @GetMapping("/getUserByIds")
+    private List<User> getUserByIds(@RequestParam("ids") List<Long> ids) {
+        return userService.getUserByIds(ids);
+    }
+
 }

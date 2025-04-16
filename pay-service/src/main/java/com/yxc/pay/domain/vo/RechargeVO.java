@@ -1,4 +1,4 @@
-package com.yxc.api.po;
+package com.yxc.pay.domain.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,8 +7,5 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderDetail {
-    private Long itemId;
-
-    private Integer num;
+public class RechargeVO {
 }
