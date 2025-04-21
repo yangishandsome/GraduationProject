@@ -2,6 +2,7 @@ package com.yxc.api.client.fallback;
 
 import com.yxc.api.client.UserClient;
 import com.yxc.api.po.DeductBalance;
+import com.yxc.api.po.ReturnBalance;
 import com.yxc.api.po.User;
 import com.yxc.common.domain.Result;
 import com.yxc.common.exception.CommonException;
@@ -24,6 +25,12 @@ public class UserClientFallbackFactory implements FallbackFactory<UserClient> {
             @Override
             public Result<?> deductBalance(DeductBalance deductBalance) {
                 log.info("扣减用户余额失败", cause);
+                return Result.error((CommonException) cause);
+            }
+
+            @Override
+            public Result<?> returnBalance(ReturnBalance returnBalance) {
+                log.info("用户退款失败", cause);
                 return Result.error((CommonException) cause);
             }
         };

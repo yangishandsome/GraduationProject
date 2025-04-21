@@ -6,6 +6,7 @@ import com.yxc.user.Service.AddressService;
 import com.yxc.user.domain.dto.AddOrUpdateAddressDTO;
 import com.yxc.user.domain.po.Address;
 import com.yxc.user.domain.vo.GetAddressVO;
+import com.yxc.user.domain.vo.GetDefaultAddressVO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -19,7 +20,7 @@ public class AddressController {
 
     @GetMapping("/getAddress")
     public Result<List<GetAddressVO>> getAddress() {
-        Long userId = UserContext.getUser();
+        Long userId = UserContext.getUser().getUserId();
         if(userId == null) {
             return Result.error("用户不存在");
         }
@@ -27,8 +28,8 @@ public class AddressController {
     }
 
     @GetMapping("getDefaultAddress")
-    public Result<Address> getDefaultAddress() {
-        Long userId = UserContext.getUser();
+    public Result<GetDefaultAddressVO> getDefaultAddress() {
+        Long userId = UserContext.getUser().getUserId();
         if(userId == null) {
             return Result.error("用户不存在");
         }

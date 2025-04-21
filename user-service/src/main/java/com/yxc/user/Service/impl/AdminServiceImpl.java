@@ -1,8 +1,10 @@
 package com.yxc.user.Service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxc.common.domain.Result;
+import com.yxc.common.domain.UserInfo;
 import com.yxc.common.utils.PasswordEncoder;
 import com.yxc.user.Service.AdminService;
 import com.yxc.user.config.JwtProperties;
@@ -38,7 +40,8 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
             return Result.error("密码错误");
         }
         LoginVO vo = new LoginVO();
-        String token = jwtTool.createToken(admin.getAdminId(), jwtProperties.getTokenTTL());
+        UserInfo userInfo = new UserInfo(admin.getAdminId(), "admin");
+        String token = jwtTool.createToken(JSONUtil.toJsonStr(userInfo), jwtProperties.getTokenTTL());
         vo.setToken(token);
         vo.setUsername(admin.getUsername());
         vo.setUserId(admin.getAdminId());

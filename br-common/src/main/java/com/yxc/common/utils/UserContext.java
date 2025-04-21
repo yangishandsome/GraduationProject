@@ -1,21 +1,23 @@
 package com.yxc.common.utils;
 
+import com.yxc.common.domain.UserInfo;
+
 public class UserContext {
-    private static final ThreadLocal<Long> tl = new ThreadLocal<>();
+    private static final ThreadLocal<UserInfo> tl = new ThreadLocal<>();
 
     /**
      * 保存当前登录用户信息到ThreadLocal
-     * @param userId 用户id
+     * @param user 用户信息
      */
-    public static void setUser(Long userId) {
-        tl.set(userId);
+    public static void setUser(UserInfo user) {
+        tl.set(user);
     }
 
     /**
      * 获取当前登录用户信息
-     * @return 用户id
+     * @return 用户Change access modifier
      */
-    public static Long getUser() {
+    public static UserInfo getUser() {
         return tl.get();
     }
 

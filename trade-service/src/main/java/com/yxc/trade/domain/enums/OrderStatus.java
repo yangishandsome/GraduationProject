@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
+@Getter
 public enum OrderStatus {
     /**
      * 订单已创建，等待付款
@@ -31,29 +32,34 @@ public enum OrderStatus {
     TIMEOUT(4, "TIMEOUT"),
 
     /**
-     * 商品已归还
+     * 订单归还中
      */
-    RETURNED(5, "RETURNED"),
-
-    /**
-     * 订单已取消
-     */
-    CANCELLED(6, "CANCELLED"),
+    RETURNING(5, "RETURNING"),
 
     /**
      * 退款中
      */
-    REFUNDING(7, "REFUNDING"),
+    REFUNDING(6, "REFUNDING"),
+
+    /**
+     * 商品已归还
+     */
+    RETURNED(7, "RETURNED"),
+
 
     /**
      * 退款完成
      */
-    REFUNDED(8, "REFUNDED");
+    REFUNDED(8, "REFUNDED"),
 
-    @Getter
+    /**
+     * 订单已取消
+     */
+    CANCELLED(9, "CANCELLED");
+
+
     @EnumValue
     private final Integer status;
-    @Getter
     @JsonValue
     private final String description;
 

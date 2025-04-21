@@ -56,7 +56,7 @@ public class UserController {
 
     @GetMapping("/getUserInfo")
     private Result<UserInfoVO> getUserInfo() {
-        Long userId = UserContext.getUser();
+        Long userId = UserContext.getUser().getUserId();
         return userService.getUserInfo(userId);
     }
 

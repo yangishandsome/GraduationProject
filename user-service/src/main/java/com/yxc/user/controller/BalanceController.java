@@ -6,6 +6,7 @@ import com.yxc.common.domain.Result;
 import com.yxc.user.Service.BalanceService;
 import com.yxc.user.domain.dto.AddBalanceDTO;
 import com.yxc.user.domain.dto.DeductBalanceDTO;
+import com.yxc.user.domain.dto.ReturnBalanceDTO;
 import com.yxc.user.domain.po.BalanceRecords;
 import com.yxc.user.domain.vo.AddBalanceVO;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,11 @@ public class BalanceController {
     @PutMapping("/deduct")
     Result<?> deductBalance(@RequestBody DeductBalanceDTO deductBalanceDTO) {
         return balanceService.deductBalance(deductBalanceDTO);
+    }
+
+    @PutMapping("/return")
+    Result<?> returnBalance(@RequestBody ReturnBalanceDTO returnBalanceDTO) {
+        return balanceService.returnBalance(returnBalanceDTO);
     }
 
 }

@@ -2,6 +2,7 @@ package com.yxc.user.Service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxc.common.domain.Result;
 import com.yxc.common.utils.UserContext;
@@ -9,18 +10,23 @@ import com.yxc.user.Service.AddressService;
 import com.yxc.user.domain.dto.AddOrUpdateAddressDTO;
 import com.yxc.user.domain.po.Address;
 import com.yxc.user.domain.vo.GetAddressVO;
+import com.yxc.user.domain.vo.GetDefaultAddressVO;
 import com.yxc.user.mapper.AddressMapper;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> implements AddressService {
 
+    @Resource
+    private AddressMapper addressMapper;
+
     @Override
     public Result<Long> addAddress(AddOrUpdateAddressDTO addOrUpdateAddressDTO) {
-        Long userId = UserContext.getUser();
+        Long userId = UserContext.getUser().getUserId();
         Long count = lambdaQuery().eq(Address::getUserId, userId).count();
         if(count >= 10) {
             return Result.error("您的收货地址已达到最大数量");
@@ -31,6 +37,9 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
                     .set( Address::getIsDefault, 0)
                     .eq(Address::getUserId, userId)
                     .update();
+        }
+        if(count == 0 && address.getIsDefault() == 0) {
+            address.setIsDefault(1);
         }
         save(address);
         return Result.ok(1L);
@@ -61,11 +70,12 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 
     @Override
     public Result<Long> updateById(AddOrUpdateAddressDTO addOrUpdateAddressDTO) {
-        Address address = getById(addOrUpdateAddressDTO.getId());
-        if(address.getIsDefault() == 1) {
+        Long addressId = addOrUpdateAddressDTO.getId();
+        Address address = getById(addressId);
+        if(!addressId.equals(address.getId()) && address.getIsDefault() == 1) {
             return Result.error("必须有一个默认地址");
         }
-        Long userId = UserContext.getUser();
+        Long userId = UserContext.getUser().getUserId();
         address = getAddress(addOrUpdateAddressDTO);
         if (address.getIsDefault() == 1) {
             lambdaUpdate()
@@ -78,7 +88,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
     }
 
     @Override
-    public Result<Address> getDefaultAddress(Long userId) {
+    public Result<GetDefaultAddressVO> getDefaultAddress(Long userId) {
         List<Address> list = lambdaQuery()
                 .eq(Address::getUserId, userId)
                 .eq(Address::getIsDefault, 1)
@@ -88,12 +98,16 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
         }
         Address address = list.get(0);
         address.setProvince(StrUtil.isEmpty(address.getProvince()) ? "" : address.getProvince());
-        return Result.ok(address);
+        GetDefaultAddressVO vo = BeanUtil.copyProperties(address, GetDefaultAddressVO.class);
+        vo.setCount(addressMapper.selectCount(
+                new LambdaQueryWrapper<Address>()
+                        .eq(Address::getUserId, userId)));
+        return Result.ok(vo);
     }
 
     private static Address getAddress(AddOrUpdateAddressDTO addOrUpdateAddressDTO) {
         List<String> locationInfo = addOrUpdateAddressDTO.getLocationInfo();
-        Long userId = UserContext.getUser();
+        Long userId = UserContext.getUser().getUserId();
         int size = locationInfo.size();
 
         Address address = new Address();

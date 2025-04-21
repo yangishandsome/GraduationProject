@@ -1,7 +1,9 @@
 package com.yxc.gateway.filters;
 
+import cn.hutool.json.JSONUtil;
 import com.yxc.gateway.config.AuthProperties;
 import com.yxc.gateway.utils.JwtTool;
+import com.yxc.gateway.utils.UserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -44,9 +46,9 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             token = headers.get(0);
         }
 
-        Long userId;
+        UserInfo userInfo;
         try {
-            userId = jwtTool.parseToken(token);
+            userInfo = jwtTool.parseToken(token);
         } catch (Exception e) {
             log.info("请求：{} token解析失败", path);
             ServerHttpResponse response = exchange.getResponse();
@@ -54,7 +56,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             return response.setComplete();
         }
         ServerWebExchange swe = exchange.mutate()
-                .request(builder -> builder.header("user-info", userId.toString()))
+                .request(builder -> builder.header("user-info", JSONUtil.toJsonStr(userInfo)))
                 .build();
         log.info("请求：{} token解析成功", path);
         return chain.filter(swe);

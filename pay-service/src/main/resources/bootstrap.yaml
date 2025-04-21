@@ -12,3 +12,11 @@ spring:
           - data-id: shared-jdbc.yaml
           - data-id: shared-redis.yaml
           - data-id: shared-seata.yaml
+      discovery:
+        # 元数据增强配置（HTTPS专用）
+        metadata:
+          # 核心元数据
+          secure: "true"              # 声明使用HTTPS
+          protocol: "HTTPS"          # 明确协议类型
+          management.port: "${server.port}"  # 健康检查端口
+          management.context-path: "/actuator" # 健康检查路径

@@ -5,6 +5,7 @@ import com.yxc.common.domain.Result;
 import com.yxc.user.domain.dto.AddOrUpdateAddressDTO;
 import com.yxc.user.domain.po.Address;
 import com.yxc.user.domain.vo.GetAddressVO;
+import com.yxc.user.domain.vo.GetDefaultAddressVO;
 
 import java.util.List;
 
@@ -15,5 +16,5 @@ public interface AddressService extends IService<Address> {
 
     Result<Long> updateById(AddOrUpdateAddressDTO addOrUpdateAddressDTO);
 
-    Result<Address> getDefaultAddress(Long userId);
+    Result<GetDefaultAddressVO> getDefaultAddress(Long userId);
 }

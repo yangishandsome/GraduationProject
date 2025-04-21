@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxc.common.domain.Result;
+import com.yxc.common.domain.UserInfo;
 import com.yxc.common.utils.PasswordEncoder;
 import com.yxc.common.utils.UserContext;
 import com.yxc.user.Service.AddressService;
@@ -63,7 +64,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return Result.error("密码错误");
         }
         LoginVO vo = new LoginVO();
-        String token = jwtTool.createToken(user.getUserId(), jwtProperties.getTokenTTL());
+        UserInfo userInfo = new UserInfo(user.getUserId(), "user");
+        String token = jwtTool.createToken(JSONUtil.toJsonStr(userInfo), jwtProperties.getTokenTTL());
         vo.setToken(token);
         vo.setUsername(user.getUsername());
         vo.setUserId(user.getUserId());
@@ -144,7 +146,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUsername(register.getUsername());
         user.setPasswordHash(PasswordEncoder.encode(register.getPassword()));
         save(user);
-        String token = jwtTool.createToken(user.getUserId(), jwtProperties.getTokenTTL());
+        UserInfo userInfo = new UserInfo(user.getUserId(), "user");
+        String token = jwtTool.createToken(JSONUtil.toJsonStr(userInfo), jwtProperties.getTokenTTL());
         RegisterVerifyVO vo = new RegisterVerifyVO();
         vo.setUserId(user.getUserId());
         vo.setUsername(user.getUsername());
@@ -180,7 +183,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String username = updateUserInfoDTO.getUsername();
         String email = updateUserInfoDTO.getEmail();
         String phone = updateUserInfoDTO.getPhone();
-        Long userId = UserContext.getUser();
+        Long userId = UserContext.getUser().getUserId();
         User user = lambdaQuery()
                 .eq(StrUtil.isNotEmpty(username), User::getUsername, username)
                 .or().eq(StrUtil.isNotEmpty(email), User::getEmail, email)

@@ -21,6 +21,12 @@ public class OrderDetailVO {
 
     private String itemImageUrl;
 
+    private String receiverName;
+
+    private String contactPhone;
+
+    private String addressDetail;
+
     private BigDecimal totalFee;
 
     private OrderStatus status;

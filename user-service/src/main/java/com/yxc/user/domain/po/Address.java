@@ -12,13 +12,22 @@ import java.time.LocalDateTime;
 public class Address {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+
     private Long userId;
+
     private String name;
+
     private String province;
+
     private String city;
+
     private String district;
+
     private String detail;
+
     private String phone;
+
     private Integer isDefault;
+
     private LocalDateTime createAt;
 }

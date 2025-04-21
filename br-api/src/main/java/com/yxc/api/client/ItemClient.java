@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Collection;
 import java.util.List;
 
-@FeignClient(value = "item-service",
+@FeignClient(value = "https://item-service",
         configuration = DefaultFeignConfig.class,
         fallbackFactory = ItemClientFallbackFactory.class)
 public interface ItemClient {
