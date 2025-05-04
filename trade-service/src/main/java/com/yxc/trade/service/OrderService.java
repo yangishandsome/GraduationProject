@@ -42,4 +42,6 @@ public interface OrderService extends IService<Order> {
     Result<OutTimeOrderInfoVO> getTimeoutOrderInfo(Long orderId);
 
     Result<Long> payTimeoutOrder(PayTimeoutOrderDTO payTimeoutOrderDTO);
+
+    Result<Long> informHandelTimeoutOrder(Long orderId);
 }

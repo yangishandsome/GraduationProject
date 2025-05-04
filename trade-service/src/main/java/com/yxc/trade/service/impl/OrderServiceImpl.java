@@ -440,6 +440,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                     return Result.error("续租用户和创建订单用户不一致，无法进行续租");
                 }
                 order.setExpectedEnd(order.getExpectedEnd().plusDays(days));
+                order.setDays(order.getDays() + days);
                 updateById(order);
             }
         } catch (Exception e) {
@@ -458,8 +459,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             return Result.error("商品信息不存在");
         }
         BigDecimal shouldPayAmount = items.get(0).getPrice().multiply(new BigDecimal(days));
-        if(!renewRentDTO.getPayAmount().equals(shouldPayAmount)) {
-            return Result.error("支付金额不足，无法续租");
+        if(renewRentDTO.getPayAmount().compareTo(shouldPayAmount) != 0) {
+            return Result.error("支付金额错误，续租失败");
         }
 
         DeductBalance deductBalance = new DeductBalance();
@@ -808,11 +809,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
                 LocalDate expectedEnd = order.getExpectedEnd();
                 int timeoutDays = LocalDate.now().compareTo(expectedEnd);
-                if(timeoutDays >= days) {
+                if(timeoutDays > days) {
                     return Result.error("支付金额不足，请重新支付");
                 }
                 order.setExpectedEnd(expectedEnd.plusDays(days));
                 order.setStatus(OrderStatus.RENTING);
+                order.setDays(order.getDays() + days);
                 updateById(order);
             }
         } catch (Exception e) {
@@ -831,7 +833,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             return Result.error("商品信息不存在");
         }
         BigDecimal payAmount = items.get(0).getPrice().multiply(new BigDecimal(days));
-        if(!payAmount.equals(payTimeoutOrderDTO.getPayAmount())) {
+        if(payAmount.compareTo(payTimeoutOrderDTO.getPayAmount()) != 0) {
             return Result.error("支付金额错误，请重新支付");
         }
 
@@ -843,8 +845,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         OrderDetail detail = new OrderDetail();
         detail.setOrderId(orderId);
         detail.setStatus(OrderStatus.RENTING);
-        detail.setDescription("用户支付超时费用，订单恢复正常");
+        detail.setDescription("用户支付超时费用：" + payAmount + "元，订单恢复正常");
         orderDetailService.save(detail);
+        return Result.ok(1L);
+    }
+
+    @Override
+    public Result<Long> informHandelTimeoutOrder(Long orderId) {
+        Order order = getById(orderId);
+        userNotificationController.sendTimeoutOrderNotification(order.getUserId(), order);
         return Result.ok(1L);
     }
 

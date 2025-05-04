@@ -2,6 +2,10 @@ spring:
   application:
     name: trade-service
   cloud:
+    sentinel:
+      transport:
+        dashboard: 192.168.147.3:8858
+      http-method-specify: true
     nacos:
       server-addr: 192.168.147.3:8848
       config:
@@ -22,3 +26,10 @@ spring:
           protocol: HTTPS          # 明确协议类型
           management.port: "${server.port}"  # 健康检查端口
           management.context-path: "/actuator" # 健康检查路径
+resilience4j.ratelimiter:
+  instances:
+    itemRateLimit:
+      limitForPeriod: 50
+      limitRefreshPeriod: 1s
+      timeoutDuration: 500ms
+      registerHealthIndicator: true

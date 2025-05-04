@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(value = "https://user-service",
+@FeignClient(name = "user-service",
+        url = "https://localhost:8083",
         configuration = DefaultFeignConfig.class,
         fallbackFactory = UserClientFallbackFactory.class)
 public interface UserClient {

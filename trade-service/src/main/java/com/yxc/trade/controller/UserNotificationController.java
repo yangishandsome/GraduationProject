@@ -57,7 +57,7 @@ public class UserNotificationController {
         simpMessagingTemplate.convertAndSend(DESTINATION + userId, payload);
     }
 
-    // 发送确认电池归还通知
+    // 发送订单超时通知
     public void sendTimeoutOrderNotification(Long userId, Order order) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("type", "TIMEOUT_ORDER");

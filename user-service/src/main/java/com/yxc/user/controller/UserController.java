@@ -1,8 +1,10 @@
 package com.yxc.user.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.yxc.common.domain.Result;
 import com.yxc.common.utils.UserContext;
 import com.yxc.user.Service.UserService;
+import com.yxc.user.domain.dto.LoginDTO;
 import com.yxc.user.domain.dto.RegisterDTO;
 import com.yxc.user.domain.dto.RegisterVerifyDTO;
 import com.yxc.user.domain.dto.UpdateUserInfoDTO;
@@ -23,9 +25,13 @@ public class UserController {
     @Resource
     private UserService userService;
 
-    @GetMapping("/login")
-    private Result<LoginVO> login(@RequestParam(value = "username") String username,
-                                  @RequestParam(value = "password") String password) {
+    @PostMapping("/login")
+    private Result<LoginVO> login(@RequestBody LoginDTO loginDTO) {
+        String username = loginDTO.getUsername();
+        String password = loginDTO.getPassword();
+        if(StrUtil.isEmpty(username) || StrUtil.isEmpty(password)) {
+            return Result.error("用户名或密码错误");
+        }
         return userService.login(username, password);
     }
 

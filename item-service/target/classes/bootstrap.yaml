@@ -6,6 +6,10 @@ spring:
       max-file-size: 10MB
       max-request-size: 100MB
   cloud:
+    sentinel:
+      transport:
+        dashboard: 192.168.147.3:8858
+      http-method-specify: true
     nacos:
       server-addr: 192.168.147.3:8848
       config:
@@ -27,3 +31,7 @@ spring:
           protocol: HTTPS            # 明确协议类型
           management.port: "${server.port}"  # 健康检查端口
           management.context-path: "/actuator" # 健康检查路径
+
+feign:
+  sentinel:
+    enabled: true

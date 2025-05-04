@@ -11,5 +11,7 @@ br:
     host: 192.168.147.3
     pw: 123456
 feign:
+  sentinel:
+    enabled: true
   okhttp:
     enabled: true

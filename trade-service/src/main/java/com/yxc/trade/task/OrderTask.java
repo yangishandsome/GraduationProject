@@ -83,7 +83,8 @@ public class OrderTask {
      * 每天0点检测超时租赁订单
      */
     @Async("scheduleExecutor")
-    @Scheduled(cron = "0 0 0 * * ?")
+    //@Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 */1 * * * ?")
     @Transactional
     public void detectOutTimeRent() {
         log.info("检测超时租赁订单");
