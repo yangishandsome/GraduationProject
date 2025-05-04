@@ -5,9 +5,9 @@ import com.yxc.common.domain.PageVO;
 import com.yxc.common.domain.Result;
 import com.yxc.trade.domain.dto.*;
 import com.yxc.trade.domain.po.Order;
-import com.yxc.trade.domain.vo.CreateOrderVO;
-import com.yxc.trade.domain.vo.OrderDetailVO;
-import com.yxc.trade.domain.vo.OutTimeOrderInfoVO;
+import com.yxc.trade.domain.vo.*;
+
+import java.math.BigDecimal;
 
 public interface OrderService extends IService<Order> {
 
@@ -44,4 +44,19 @@ public interface OrderService extends IService<Order> {
     Result<Long> payTimeoutOrder(PayTimeoutOrderDTO payTimeoutOrderDTO);
 
     Result<Long> informHandelTimeoutOrder(Long orderId);
+
+    Result<GetCountByStatusVO> getCountByStatus();
+
+    Result<TodayOrderDataVO> getTodayOrderData();
+
+    Result<GetTurnoverVO> getTodayData();
+
+    Result<GetTurnoverVO> getYesterday();
+
+    Result<GetTurnoverVO> getLast7days();
+
+    Result<GetTurnoverVO> getLast15days();
+
+    Result<GetTurnoverVO> getLast30days();
+
 }

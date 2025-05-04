@@ -7,6 +7,7 @@ import com.yxc.item.domain.dto.OrderDetail;
 import com.yxc.item.domain.dto.SaveItemDTO;
 import com.yxc.item.domain.dto.UpdateItemDTO;
 import com.yxc.item.domain.po.Item;
+import com.yxc.item.domain.vo.GetItemCountVO;
 import com.yxc.item.service.ItemService;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,11 @@ public class ItemController {
     @GetMapping("/shelvesPageQuery")
     public Result<PageVO<Item>> shelvesPageQuery(PageQuery pageQuery) {
         return itemService.shelvesPageQuery(pageQuery);
+    }
+
+    @GetMapping("getItemCount")
+    public Result<GetItemCountVO> getItemCount() {
+        return itemService.getItemCount();
     }
 
     @PostMapping("/changeItemStatus/{id}")

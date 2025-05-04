@@ -32,4 +32,6 @@ public class User {
     private Short status;
 
     private LocalDateTime createdAt;
+
+    private LocalDateTime loginAt;
 }

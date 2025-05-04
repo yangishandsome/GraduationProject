@@ -1,5 +1,6 @@
 package com.yxc.user.Service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -17,10 +18,7 @@ import com.yxc.user.domain.dto.UpdateUserInfoDTO;
 import com.yxc.user.domain.po.Address;
 import com.yxc.user.domain.po.Register;
 import com.yxc.user.domain.po.User;
-import com.yxc.user.domain.vo.LoginVO;
-import com.yxc.user.domain.vo.RegisterVO;
-import com.yxc.user.domain.vo.RegisterVerifyVO;
-import com.yxc.user.domain.vo.UserInfoVO;
+import com.yxc.user.domain.vo.*;
 import com.yxc.user.mapper.UserMapper;
 import com.yxc.user.utils.JwtTool;
 import com.yxc.common.utils.RedisIdWork;
@@ -29,7 +27,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -70,6 +73,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         vo.setUsername(user.getUsername());
         vo.setUserId(user.getUserId());
         log.info("用户：{}登录成功，用户id：{}", vo.getUsername(), vo.getUserId());
+        lambdaUpdate().set(User::getLoginAt, LocalDateTime.now()).eq(User::getUserId, user.getUserId()).update();
         return Result.ok(vo);
     }
 
@@ -219,6 +223,117 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public List<User> getUserByIds(List<Long> ids) {
         return userMapper.selectBatchIds(ids);
+    }
+
+    @Override
+    public Result<TodayUserDataVO> getTodayUserData() {
+        LocalDateTime begin = LocalDateTime.now().with(LocalTime.MIN);
+        LocalDateTime end = LocalDateTime.now().with(LocalTime.MAX);
+
+        Long newUser = lambdaQuery().between(User::getCreatedAt, begin, end).count();
+        Long activeUser = lambdaQuery().between(User::getLoginAt, begin, end).count();
+
+        TodayUserDataVO todayUserDataVO = new TodayUserDataVO();
+        todayUserDataVO.setActiveUser(activeUser);
+        todayUserDataVO.setNewUser(newUser);
+
+        return Result.ok(todayUserDataVO);
+    }
+
+    @Override
+    public Result<GetUserDataVO> getLast7days() {
+        LocalDateTime begin = LocalDateTime.now().plusDays(-6).with(LocalTime.MIN);
+        LocalDateTime end = LocalDateTime.now().with(LocalTime.MAX);
+
+        LocalDate[] dates = new LocalDate[7];
+        LocalDate today = LocalDate.now();
+        for(int i = 6; i >= 0; i--) {
+            dates[i] = today.plusDays(i - 6);
+        }
+
+        List<User> newUser = lambdaQuery().between(User::getCreatedAt, begin, end).list();
+        Long totalUser = lambdaQuery().count();
+
+        Map<LocalDate, Long> newUserCountMap = newUser.stream()
+                .collect(Collectors.groupingBy(user -> user.getCreatedAt().toLocalDate(), Collectors.counting()));
+
+        GetUserDataVO vo = new GetUserDataVO();
+        List<Long> totalUserCount = new ArrayList<>();
+        List<Long> newUserCount = new ArrayList<>();
+        for(LocalDate date : dates) {
+            Long todayNewUser = newUserCountMap.getOrDefault(date, 0L);
+            totalUserCount.add(totalUser);
+            newUserCount.add(todayNewUser);
+            totalUser -= todayNewUser;
+        }
+        vo.setTotalCounts(CollUtil.reverse(totalUserCount));
+        vo.setNewCounts(newUserCount);
+
+        return Result.ok(vo);
+    }
+
+    @Override
+    public Result<GetUserDataVO> getLast15days() {
+        LocalDateTime begin = LocalDateTime.now().plusDays(-14).with(LocalTime.MIN);
+        LocalDateTime end = LocalDateTime.now().with(LocalTime.MAX);
+
+        LocalDate[] dates = new LocalDate[15];
+        LocalDate today = LocalDate.now();
+        for(int i = 14; i >= 0; i--) {
+            dates[i] = today.plusDays(i - 14);
+        }
+
+        List<User> newUser = lambdaQuery().between(User::getCreatedAt, begin, end).list();
+        Long totalUser = lambdaQuery().count();
+
+        Map<LocalDate, Long> newUserCountMap = newUser.stream()
+                .collect(Collectors.groupingBy(user -> user.getCreatedAt().toLocalDate(), Collectors.counting()));
+
+        GetUserDataVO vo = new GetUserDataVO();
+        List<Long> totalUserCount = new ArrayList<>();
+        List<Long> newUserCount = new ArrayList<>();
+        for(LocalDate date : dates) {
+            Long todayNewUser = newUserCountMap.getOrDefault(date, 0L);
+            totalUserCount.add(totalUser);
+            newUserCount.add(todayNewUser);
+            totalUser -= todayNewUser;
+        }
+        vo.setTotalCounts(CollUtil.reverse(totalUserCount));
+        vo.setNewCounts(newUserCount);
+
+        return Result.ok(vo);
+    }
+
+    @Override
+    public Result<GetUserDataVO> getLast30days() {
+        LocalDateTime begin = LocalDateTime.now().plusDays(-29).with(LocalTime.MIN);
+        LocalDateTime end = LocalDateTime.now().with(LocalTime.MAX);
+
+        LocalDate[] dates = new LocalDate[30];
+        LocalDate today = LocalDate.now();
+        for(int i = 29; i >= 0; i--) {
+            dates[i] = today.plusDays(i - 29);
+        }
+
+        List<User> newUser = lambdaQuery().between(User::getCreatedAt, begin, end).list();
+        Long totalUser = lambdaQuery().count();
+
+        Map<LocalDate, Long> newUserCountMap = newUser.stream()
+                .collect(Collectors.groupingBy(user -> user.getCreatedAt().toLocalDate(), Collectors.counting()));
+
+        GetUserDataVO vo = new GetUserDataVO();
+        List<Long> totalUserCount = new ArrayList<>();
+        List<Long> newUserCount = new ArrayList<>();
+        for(LocalDate date : dates) {
+            Long todayNewUser = newUserCountMap.getOrDefault(date, 0L);
+            totalUserCount.add(totalUser);
+            newUserCount.add(todayNewUser);
+            totalUser -= todayNewUser;
+        }
+        vo.setTotalCounts(CollUtil.reverse(totalUserCount));
+        vo.setNewCounts(newUserCount);
+
+        return Result.ok(vo);
     }
 
 }

@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -58,6 +59,7 @@ public class OrderTask {
                     order.setStatus(OrderStatus.CANCELLED);
                     orderService.lambdaUpdate()
                             .set(Order::getStatus, OrderStatus.CANCELLED)
+                            .set(Order::getActualEnd, new Date())
                             .eq(Order::getOrderId, order.getOrderId())
                             .eq(Order::getStatus, OrderStatus.CREATED)
                             .update();
@@ -89,8 +91,9 @@ public class OrderTask {
     public void detectOutTimeRent() {
         log.info("检测超时租赁订单");
         LocalDate today = LocalDate.now();
+        List<OrderStatus> statusList = List.of(OrderStatus.SHIPPED, OrderStatus.RENTING);
         List<Order> outTimeOrders = orderService.lambdaQuery()
-                .eq(Order::getStatus, OrderStatus.RENTING)
+                .in(Order::getStatus, statusList)
                 .lt(Order::getExpectedEnd, today)
                 .list();
         List<OrderDetail> detailList = new ArrayList<>(outTimeOrders.size());

@@ -6,10 +6,7 @@ import com.yxc.user.domain.dto.RegisterDTO;
 import com.yxc.user.domain.dto.RegisterVerifyDTO;
 import com.yxc.user.domain.dto.UpdateUserInfoDTO;
 import com.yxc.user.domain.po.User;
-import com.yxc.user.domain.vo.LoginVO;
-import com.yxc.user.domain.vo.RegisterVO;
-import com.yxc.user.domain.vo.RegisterVerifyVO;
-import com.yxc.user.domain.vo.UserInfoVO;
+import com.yxc.user.domain.vo.*;
 
 import java.util.List;
 
@@ -29,4 +26,12 @@ public interface UserService extends IService<User> {
     Result<Long> updateUserInfo(UpdateUserInfoDTO updateUserInfoDTO);
 
     List<User> getUserByIds(List<Long> ids);
+
+    Result<TodayUserDataVO> getTodayUserData();
+
+    Result<GetUserDataVO> getLast7days();
+
+    Result<GetUserDataVO> getLast15days();
+
+    Result<GetUserDataVO> getLast30days();
 }

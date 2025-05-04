@@ -11,6 +11,7 @@ import com.yxc.item.domain.dto.OrderDetail;
 import com.yxc.item.domain.dto.SaveItemDTO;
 import com.yxc.item.domain.dto.UpdateItemDTO;
 import com.yxc.item.domain.po.Item;
+import com.yxc.item.domain.vo.GetItemCountVO;
 import com.yxc.item.mapper.ItemMapper;
 import com.yxc.item.service.ItemService;
 import io.seata.core.context.RootContext;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -111,5 +114,16 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
             throw new BizIllegalException("库存不足！");
         }
         itemMapper.updateStock(items.get(0));
+    }
+
+    @Override
+    public Result<GetItemCountVO> getItemCount() {
+        List<Item> items = lambdaQuery().list();
+        Map<Integer, Long> itemMap = items.stream()
+                .collect(Collectors.groupingBy(item -> Short.toUnsignedInt(item.getStatus()), Collectors.counting()));
+        GetItemCountVO vo = new GetItemCountVO();
+        vo.setShelveCount(itemMap.get(0));
+        vo.setUnshelveCount(itemMap.get(1) == null ? 0 : itemMap.get(1));
+        return Result.ok(vo);
     }
 }

@@ -8,6 +8,7 @@ import com.yxc.item.domain.dto.OrderDetail;
 import com.yxc.item.domain.dto.SaveItemDTO;
 import com.yxc.item.domain.dto.UpdateItemDTO;
 import com.yxc.item.domain.po.Item;
+import com.yxc.item.domain.vo.GetItemCountVO;
 
 import java.util.List;
 
@@ -24,4 +25,5 @@ public interface ItemService extends IService<Item> {
 
     void deductStock(List<OrderDetail> items);
 
+    Result<GetItemCountVO> getItemCount();
 }

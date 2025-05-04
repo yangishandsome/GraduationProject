@@ -9,10 +9,7 @@ import com.yxc.user.domain.dto.RegisterDTO;
 import com.yxc.user.domain.dto.RegisterVerifyDTO;
 import com.yxc.user.domain.dto.UpdateUserInfoDTO;
 import com.yxc.user.domain.po.User;
-import com.yxc.user.domain.vo.LoginVO;
-import com.yxc.user.domain.vo.RegisterVO;
-import com.yxc.user.domain.vo.RegisterVerifyVO;
-import com.yxc.user.domain.vo.UserInfoVO;
+import com.yxc.user.domain.vo.*;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -64,6 +61,26 @@ public class UserController {
     private Result<UserInfoVO> getUserInfo() {
         Long userId = UserContext.getUser().getUserId();
         return userService.getUserInfo(userId);
+    }
+
+    @GetMapping("/getTodayUserData")
+    private Result<TodayUserDataVO> getTodayUserData() {
+        return userService.getTodayUserData();
+    }
+
+    @GetMapping("/getUserData/last7days")
+    private Result<GetUserDataVO> getLast7days() {
+        return userService.getLast7days();
+    }
+
+    @GetMapping("/getUserData/last15days")
+    private Result<GetUserDataVO> getLast15days() {
+        return userService.getLast15days();
+    }
+
+    @GetMapping("/getUserData/last30days")
+    private Result<GetUserDataVO> getLast30days() {
+        return userService.getLast30days();
     }
 
     /**
