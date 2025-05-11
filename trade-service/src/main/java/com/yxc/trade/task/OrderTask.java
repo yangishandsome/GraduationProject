@@ -38,7 +38,7 @@ public class OrderTask {
     @Resource
     private UserNotificationController userNotificationController;
 
-    private static final Integer OUT_TIME_MINUTES = -1;
+    private static final Integer OUT_TIME_MINUTES = -10;
 
     private static final String ORDER_LOCK_PREFIX = "lock:order:";
 

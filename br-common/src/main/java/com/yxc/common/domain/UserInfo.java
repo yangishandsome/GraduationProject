@@ -11,4 +11,6 @@ public class UserInfo {
     private Long userId;
 
     private String role;
+
+    private Integer permission;
 }

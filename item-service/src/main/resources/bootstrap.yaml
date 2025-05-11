@@ -20,6 +20,7 @@ spring:
           - data-id: shared-seata.yaml
           - data-id: shared-log.yaml
           - data-id: shared-alioss.yaml
+          - data-id: shared-permission.yaml
       discovery:
         server-addr: 192.168.147.3:8848
         namespace: dev # 与服务端一致

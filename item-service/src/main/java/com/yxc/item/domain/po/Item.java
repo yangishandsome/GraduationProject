@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @TableName("item")
 public class Item {
 
-    @TableId(value = "item_id", type = IdType.AUTO)
+    @TableId(value = "item_id")
     private Long itemId;
 
     private String name;

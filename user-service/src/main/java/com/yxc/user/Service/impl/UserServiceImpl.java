@@ -67,7 +67,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return Result.error("密码错误");
         }
         LoginVO vo = new LoginVO();
-        UserInfo userInfo = new UserInfo(user.getUserId(), "user");
+        UserInfo userInfo = new UserInfo(user.getUserId(), "user", 0);
         String token = jwtTool.createToken(JSONUtil.toJsonStr(userInfo), jwtProperties.getTokenTTL());
         vo.setToken(token);
         vo.setUsername(user.getUsername());
@@ -80,7 +80,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Result<Long> sendCode(String phone) {
         String code = RandomUtil.randomNumbers(6);
-        stringRedisTemplate.opsForValue().set("user:code:" + phone, code, 1, TimeUnit.HOURS);
+        stringRedisTemplate.opsForValue().set("user:code:" + phone, code, 5, TimeUnit.MINUTES);
         log.info("已为手机号：{}发送验证码：{}", phone, code);
         return Result.ok(1L);
     }
@@ -150,7 +150,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUsername(register.getUsername());
         user.setPasswordHash(PasswordEncoder.encode(register.getPassword()));
         save(user);
-        UserInfo userInfo = new UserInfo(user.getUserId(), "user");
+        UserInfo userInfo = new UserInfo(user.getUserId(), "user", 0);
         String token = jwtTool.createToken(JSONUtil.toJsonStr(userInfo), jwtProperties.getTokenTTL());
         RegisterVerifyVO vo = new RegisterVerifyVO();
         vo.setUserId(user.getUserId());

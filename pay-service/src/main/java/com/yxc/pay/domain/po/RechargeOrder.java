@@ -16,8 +16,8 @@ import java.util.Date;
 @NoArgsConstructor
 @TableName(value = "recharge_order")
 public class RechargeOrder {
-    @TableId(value = "order_id", type = IdType.AUTO)
-    private Long orderId;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
 
     private BigDecimal amount;
 

@@ -5,10 +5,12 @@ import com.yxc.common.domain.Result;
 import com.yxc.trade.domain.dto.*;
 import com.yxc.trade.domain.po.Order;
 import com.yxc.trade.domain.vo.*;
+import com.yxc.trade.mq.OrderProducerService;
 import com.yxc.trade.service.OrderService;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -28,8 +30,6 @@ public class OrderController {
 
     @GetMapping("/pageQuery")
     public Result<PageVO<Order>> pageQuery(OrderPageQueryDTO pageQuery) {
-        log.info("pageQuery:{}", pageQuery);
-        log.info("orderService:{}", orderService);
         return orderService.pageQuery(pageQuery);
     }
 

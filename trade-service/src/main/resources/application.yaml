@@ -15,3 +15,9 @@ feign:
     enabled: true
   okhttp:
     enabled: true
+rocketmq:
+  name-server: 192.168.147.3:9876 # 替换为你的NameServer地址
+  producer:
+    group: order-producer-group
+  consumer:
+    group: order-consumer-group

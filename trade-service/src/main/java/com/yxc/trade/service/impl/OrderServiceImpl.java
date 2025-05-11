@@ -21,12 +21,14 @@ import com.yxc.trade.domain.po.Order;
 import com.yxc.trade.domain.po.OrderDetail;
 import com.yxc.trade.domain.vo.*;
 import com.yxc.trade.mapper.OrderMapper;
+import com.yxc.trade.mq.OrderProducerService;
 import com.yxc.trade.service.OrderDetailService;
 import com.yxc.trade.service.OrderService;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +37,6 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -66,6 +66,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     @Resource
     private UserNotificationController userNotificationController;
+
+    @Autowired
+    private OrderProducerService orderProducerService;
 
     private static final String ORDER_LOCK_PREFIX = "lock:order:";
 
@@ -113,6 +116,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             return Result.error(e.getMessage());
         }
         save(order);
+
+        // 消息队列发送延时消息，处理超时订单
+        orderProducerService.sendOrderCancelMessage(order);
 
         OrderDetail detail = new OrderDetail();
         detail.setCreatedAt(new Date());
@@ -884,6 +890,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     public Result<TodayOrderDataVO> getTodayOrderData() {
         LocalDate today = LocalDate.now();
         List<Order> orders = lambdaQuery().eq(Order::getStartTime, today).list();
+        if(orders.isEmpty()) {
+            TodayOrderDataVO vo = new TodayOrderDataVO();
+            vo.setTurnover(new BigDecimal("0.00"));
+            vo.setEffectiveOrder(0L);
+            vo.setOrderCompleteRate(new BigDecimal("0.00"));
+            vo.setAvgOrderPrice(new BigDecimal("0.00"));
+            return Result.ok(vo);
+        }
         Set<OrderStatus> effectiveStatus = Set.of(
                 OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.RENTING,
                 OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.REFUNDED);
@@ -896,10 +910,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 turnover = turnover.add(order.getTotalFee());
             }
         }
-        BigDecimal orderCompleteRate = new BigDecimal(effectiveOrder)
-                .multiply(new BigDecimal("100"))
-                .divide(new BigDecimal(orders.size()), 2, RoundingMode.HALF_DOWN);
-        BigDecimal avgOrderPrice = turnover.divide(new BigDecimal(effectiveOrder), 2, RoundingMode.HALF_DOWN);
+
+        BigDecimal orderCompleteRate, avgOrderPrice;
+        if(effectiveOrder == 0) {
+            orderCompleteRate = new BigDecimal("0.00");
+            avgOrderPrice = new BigDecimal("0.00");
+        } else {
+            orderCompleteRate = new BigDecimal(effectiveOrder)
+                    .multiply(new BigDecimal("100"))
+                    .divide(new BigDecimal(orders.size()), 2, RoundingMode.HALF_DOWN);
+            avgOrderPrice = turnover.divide(new BigDecimal(effectiveOrder), 2, RoundingMode.HALF_DOWN);
+        }
 
         TodayOrderDataVO vo = new TodayOrderDataVO();
         vo.setTurnover(turnover);

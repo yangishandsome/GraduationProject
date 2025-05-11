@@ -7,6 +7,7 @@ import com.yxc.common.domain.PageQuery;
 import com.yxc.common.domain.PageVO;
 import com.yxc.common.domain.Result;
 import com.yxc.common.exception.BizIllegalException;
+import com.yxc.common.utils.RedisIdWork;
 import com.yxc.item.domain.dto.OrderDetail;
 import com.yxc.item.domain.dto.SaveItemDTO;
 import com.yxc.item.domain.dto.UpdateItemDTO;
@@ -31,6 +32,9 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
     @Resource
     private ItemMapper itemMapper;
 
+    @Resource
+    private RedisIdWork redisIdWork;
+
     @Override
     public Result<Long> saveItem(SaveItemDTO saveItemDTO) {
         String name = saveItemDTO.getName();
@@ -39,6 +43,7 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
             return Result.error("该商品已存在");
         }
         item = new Item();
+        item.setItemId(redisIdWork.nextId("itemId"));
         item.setName(name);
         item.setPrice(saveItemDTO.getPrice());
         item.setCapacity(saveItemDTO.getCapacity());

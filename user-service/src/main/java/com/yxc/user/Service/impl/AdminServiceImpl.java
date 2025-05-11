@@ -6,9 +6,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxc.common.domain.Result;
 import com.yxc.common.domain.UserInfo;
 import com.yxc.common.utils.PasswordEncoder;
+import com.yxc.common.utils.UserContext;
 import com.yxc.user.Service.AdminService;
 import com.yxc.user.config.JwtProperties;
 import com.yxc.user.domain.dto.AddAdminDTO;
+import com.yxc.user.domain.dto.EditAdminDTO;
 import com.yxc.user.domain.dto.LoginDTO;
 import com.yxc.user.domain.po.Admin;
 import com.yxc.user.domain.po.User;
@@ -19,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -40,7 +44,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
             return Result.error("密码错误");
         }
         LoginVO vo = new LoginVO();
-        UserInfo userInfo = new UserInfo(admin.getAdminId(), "admin");
+        UserInfo userInfo = new UserInfo(admin.getAdminId(), "admin", admin.getPermission());
         String token = jwtTool.createToken(JSONUtil.toJsonStr(userInfo), jwtProperties.getTokenTTL());
         vo.setToken(token);
         vo.setUsername(admin.getUsername());
@@ -51,14 +55,65 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
     @Override
     public Result<Long> addAdmin(AddAdminDTO addAdminDTO) {
-        if(StrUtil.isEmpty(addAdminDTO.getUsername()) || StrUtil.isEmpty(addAdminDTO.getPassword())) {
-            return StrUtil.isEmpty(addAdminDTO.getUsername())? Result.error("用户名不能为空") : Result.error("密码不能为空");
+        String username = addAdminDTO.getUsername();
+        String password = addAdminDTO.getPassword();
+        if (StrUtil.length(username) < 5 || StrUtil.length(password) < 6) {
+            return StrUtil.length(username) < 5 ? Result.error("用户名长度不能低于5") : Result.error("密码长度不能低于6");
         }
+
+        UserInfo user = UserContext.getUser();
+        if (user.getPermission() <= addAdminDTO.getPermission()) {
+            return Result.error("新增的管理员权限不能大于自身权限");
+        }
+        Long count = lambdaQuery().eq(Admin::getUsername, username).count();
+        if (count > 0) {
+            return Result.error("用户名已存在");
+        }
+
         Admin admin = new Admin();
-        admin.setUsername(addAdminDTO.getUsername());
-        admin.setPasswordHash(PasswordEncoder.encode(addAdminDTO.getPassword()));
-        admin.setAuthorization(addAdminDTO.getAuthorization());
+        admin.setUsername(username);
+        admin.setPasswordHash(PasswordEncoder.encode(password));
+        admin.setPermission(addAdminDTO.getPermission());
         save(admin);
         return Result.ok(0L);
+    }
+
+    @Override
+    public Result<Long> edit(EditAdminDTO editAdminDTO) {
+        String username = editAdminDTO.getUsername();
+        if (StrUtil.length(username) < 5) {
+            return Result.error("用户名长度不能低于5");
+        }
+
+        List<Admin> admins = lambdaQuery().eq(Admin::getUsername, username).list();
+        if(!admins.isEmpty() && !Objects.equals(admins.get(0).getAdminId(), editAdminDTO.getAdminId())) {
+            return Result.error("用户名已存在");
+        }
+
+        UserInfo userInfo = UserContext.getUser();
+        if(userInfo.getPermission() < editAdminDTO.getPermission()) {
+            return Result.error("设置的权限不能高于自身");
+        }
+
+        Admin admin = getById(editAdminDTO.getAdminId());
+        admin.setUsername(username);
+        admin.setPermission(editAdminDTO.getPermission());
+        updateById(admin);
+
+        return Result.ok(1L);
+    }
+
+    @Override
+    public Result<Long> deleteAdmin(Long id) {
+        Admin admin = getById(id);
+        UserInfo userInfo = UserContext.getUser();
+        if(userInfo.getUserId().equals(id)) {
+            return Result.error("无法删除自身");
+        }
+        if (userInfo.getPermission() <= admin.getPermission()) {
+            return Result.error("无法删除权限大于等于自身权限的管理员");
+        }
+        removeById(id);
+        return Result.ok(1L);
     }
 }
