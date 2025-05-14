@@ -8,6 +8,7 @@ import com.yxc.trade.domain.po.Order;
 import com.yxc.trade.domain.vo.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface OrderService extends IService<Order> {
 
@@ -59,4 +60,5 @@ public interface OrderService extends IService<Order> {
 
     Result<GetTurnoverVO> getLast30days();
 
+    List<Order> getOrderByItemId(Long id);
 }

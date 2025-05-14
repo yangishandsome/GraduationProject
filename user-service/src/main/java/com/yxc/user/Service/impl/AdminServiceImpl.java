@@ -63,7 +63,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
         UserInfo user = UserContext.getUser();
         if (user.getPermission() <= addAdminDTO.getPermission()) {
-            return Result.error("新增的管理员权限不能大于自身权限");
+            return Result.error("新增的管理员权限不能大于等于自身权限");
         }
         Long count = lambdaQuery().eq(Admin::getUsername, username).count();
         if (count > 0) {
@@ -91,11 +91,16 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         }
 
         UserInfo userInfo = UserContext.getUser();
-        if(userInfo.getPermission() < editAdminDTO.getPermission()) {
-            return Result.error("设置的权限不能高于自身");
+        if(userInfo.getPermission() <= editAdminDTO.getPermission()) {
+            return Result.error("设置的权限不能大于等于自身");
         }
 
         Admin admin = getById(editAdminDTO.getAdminId());
+
+        if(userInfo.getPermission() <= admin.getPermission()) {
+            return Result.error("不能对权限大于等于自身的管理员进行编辑");
+        }
+
         admin.setUsername(username);
         admin.setPermission(editAdminDTO.getPermission());
         updateById(admin);

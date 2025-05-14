@@ -3,6 +3,9 @@ package com.yxc.item.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yxc.api.client.OrderClient;
+import com.yxc.api.enums.OrderStatus;
+import com.yxc.api.po.Order;
 import com.yxc.common.domain.PageQuery;
 import com.yxc.common.domain.PageVO;
 import com.yxc.common.domain.Result;
@@ -15,14 +18,13 @@ import com.yxc.item.domain.po.Item;
 import com.yxc.item.domain.vo.GetItemCountVO;
 import com.yxc.item.mapper.ItemMapper;
 import com.yxc.item.service.ItemService;
-import io.seata.core.context.RootContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,13 +35,16 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
     private ItemMapper itemMapper;
 
     @Resource
+    private OrderClient orderClient;
+
+    @Resource
     private RedisIdWork redisIdWork;
 
     @Override
     public Result<Long> saveItem(SaveItemDTO saveItemDTO) {
         String name = saveItemDTO.getName();
         Item item = lambdaQuery().eq(StrUtil.isNotEmpty(name), Item::getName, name).one();
-        if(item != null) {
+        if (item != null) {
             return Result.error("该商品已存在");
         }
         item = new Item();
@@ -87,7 +92,7 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
         Long itemId = updateItemDTO.getItemId();
         String name = updateItemDTO.getName();
         Item item = getById(itemId);
-        if(item == null) {
+        if (item == null) {
             return Result.error("要修改的商品已被删除");
         }
         item.setName(name);
@@ -130,5 +135,23 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements It
         vo.setShelveCount(itemMap.get(0));
         vo.setUnshelveCount(itemMap.get(1) == null ? 0 : itemMap.get(1));
         return Result.ok(vo);
+    }
+
+    @Override
+    public Result<Long> deleteItem(Long id) {
+        Item item = getById(id);
+        if(item.getStatus() == 0) {
+            return Result.error("上架中的商品无法删除");
+        }
+
+        List<Order> orders = orderClient.getOrderByItemId(id);
+        Set<OrderStatus> invalidStatus = Set.of(OrderStatus.RETURNED, OrderStatus.REFUNDED, OrderStatus.CANCELLED);
+        List<Order> effectiveOrders = orders.stream().filter(order -> !invalidStatus.contains(order.getStatus())).collect(Collectors.toList());
+        if(!effectiveOrders.isEmpty()) {
+            return Result.error("目前进行中的订单含有该商品，无法删除");
+        }
+
+        removeById(id);
+        return Result.ok(1L);
     }
 }

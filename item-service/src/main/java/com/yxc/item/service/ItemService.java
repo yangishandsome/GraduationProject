@@ -26,4 +26,6 @@ public interface ItemService extends IService<Item> {
     void deductStock(List<OrderDetail> items);
 
     Result<GetItemCountVO> getItemCount();
+
+    Result<Long> deleteItem(Long id);
 }

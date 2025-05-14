@@ -5,16 +5,13 @@ import com.yxc.common.domain.Result;
 import com.yxc.trade.domain.dto.*;
 import com.yxc.trade.domain.po.Order;
 import com.yxc.trade.domain.vo.*;
-import com.yxc.trade.mq.OrderProducerService;
 import com.yxc.trade.service.OrderService;
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -146,6 +143,14 @@ public class OrderController {
     @GetMapping("/getTurnover/last30days")
     public Result<GetTurnoverVO> getLast30days() {
         return orderService.getLast30days();
+    }
+
+    /**
+     * FeignApi接口
+     */
+    @GetMapping("/getOrderByItemId")
+    List<Order> getOrderByItemId(@RequestParam("id") Long id) {
+        return orderService.getOrderByItemId(id);
     }
 
 }

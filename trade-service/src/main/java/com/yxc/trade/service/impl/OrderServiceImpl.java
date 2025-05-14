@@ -506,7 +506,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 order = getById(orderId);
                 status = order.getStatus();
                 if (order.getStatus() != OrderStatus.RENTING) {
-                    return Result.error("订单状态不为 租赁中 状态，无法确认收货");
+                    return Result.error("订单状态不为 租赁中 状态，无法归还电池");
                 }
                 if (!Objects.equals(order.getUserId(), user.getUserId())) {
                     return Result.error("电池归还用户和创建订单用户不一致，无法归还电池");
@@ -900,7 +900,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         Set<OrderStatus> effectiveStatus = Set.of(
                 OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.RENTING,
-                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.REFUNDED);
+                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.RETURNED);
 
         long effectiveOrder = 0L;
         BigDecimal turnover = new BigDecimal("0.00");
@@ -937,7 +937,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         List<Order> orders = lambdaQuery().eq(Order::getStartTime, today).list();
         Set<OrderStatus> effectiveStatus = Set.of(
                 OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.RENTING,
-                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.REFUNDED);
+                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.RETURNED);
         Map<String, Integer> itemSaleMap = new HashMap<>();
         long effectiveOrder = 0L;
         BigDecimal turnover = new BigDecimal("0.00");
@@ -977,7 +977,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         List<Order> orders = lambdaQuery().eq(Order::getStartTime, yesterday).list();
         Set<OrderStatus> effectiveStatus = Set.of(
                 OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.RENTING,
-                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.REFUNDED);
+                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.RETURNED);
 
         Map<String, Integer> itemSaleMap = new HashMap<>();
         long effectiveOrder = 0L;
@@ -1023,7 +1023,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         Set<OrderStatus> effectiveStatus = Set.of(
                 OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.RENTING,
-                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.REFUNDED);
+                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.RETURNED);
         List<BigDecimal> turnovers = new ArrayList<>();
         List<Long> totalOrders = new ArrayList<>();
         List<Long> effectiveOrders = new ArrayList<>();
@@ -1077,7 +1077,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         Set<OrderStatus> effectiveStatus = Set.of(
                 OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.RENTING,
-                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.REFUNDED);
+                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.RETURNED);
         List<BigDecimal> turnovers = new ArrayList<>();
         List<Long> totalOrders = new ArrayList<>();
         List<Long> effectiveOrders = new ArrayList<>();
@@ -1131,7 +1131,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         Set<OrderStatus> effectiveStatus = Set.of(
                 OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.RENTING,
-                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.REFUNDED);
+                OrderStatus.REFUNDING, OrderStatus.RETURNING, OrderStatus.RETURNED);
         List<BigDecimal> turnovers = new ArrayList<>();
         List<Long> totalOrders = new ArrayList<>();
         List<Long> effectiveOrders = new ArrayList<>();
@@ -1173,6 +1173,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         vo.setItemSales(itemSaleVOList.subList(0, Math.min(itemSaleVOList.size(), 10)));
 
         return Result.ok(vo);
+    }
+
+    @Override
+    public List<Order> getOrderByItemId(Long id) {
+        return lambdaQuery()
+                .eq(Order::getItemId, id)
+                .list();
     }
 
     public static void main(String[] args) {

@@ -55,8 +55,7 @@ public class ItemController {
 
     @PostMapping("deleteItem/{id}")
     public Result<Long> deleteItem(@PathVariable(value = "id") Long id) {
-        itemService.removeById(id);
-        return Result.ok(id);
+        return itemService.deleteItem(id);
     }
 
     /**
